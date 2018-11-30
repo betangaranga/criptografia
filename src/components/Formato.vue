@@ -60,19 +60,19 @@ export default {
                         nombre:"Roberto"
                     },
                     {
-                        nombre:"BETO"
+                        nombre:"Alberto"
                     },
                     {
                         nombre:"Leon"
                     },
                     {
-                        nombre:"Roberto"
+                        nombre:"Gabriel"
                     },
                     {
-                        nombre:"BETO"
+                        nombre:"John"
                     },
                     {
-                        nombre:"Leon"
+                        nombre:"Miguel"
                     }
                 ]
         }
