@@ -25,12 +25,15 @@
  <md-card md-with-hover v-bind:style="card" v-show="principal" >
             <md-ripple>
                 <md-card-header>
-                    <div class="md-title">Avisos</div>
+                    <div class="md-title">Proyecto Criptografía</div>
                     <div class="md-subhead">UPIITA</div>
                 </md-card-header>
 
                 <md-card-content>
-                   Contenido
+                   Sistema de Transferencia segura de formatos oficiales empleando firma digital y encriptación.
+                   <br> Tecnologías Empleadas:
+                   <br> Generación de Llaves y firmado de documentos: RSA / SHA1
+                   <br> Cifrado de Archivos: Cifrado simétrico mediante AES, con llave cifrada bajo esquema de llave pública con RSA.
                 </md-card-content>
 
             </md-ripple>
