@@ -59,7 +59,7 @@ return{
     
        salir: function() {
       firebase.auth().signOut().then(() => {
-        this.$router.replace('/')
+        this.$router.replace('/login')
       })
     }
   },
