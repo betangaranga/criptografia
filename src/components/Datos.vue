@@ -8,10 +8,10 @@
                 </md-card-header>
 
                 <md-card-content>
-                    <h4>Nombre : {{nombre}}</h4>
-                    <h4>Apellidos : {{apellido}}</h4>
-                    <h4>Departamento : {{departamento}}</h4>
-                    <h4>Puesto : {{puesto}}</h4>
+                    <h4>Nombre : {{datos.nombre}}</h4>
+                    <h4>Apellidos : {{datos.apellidos}}</h4>
+                    <h4>Departamento : {{datos.departamento}}</h4>
+                    <h4>Puesto : {{datos.cargo}}</h4>
                 </md-card-content>
 
             </md-ripple>
@@ -19,14 +19,23 @@
     </div>
 </template>
 <script>
+import { functions } from 'firebase';
+import { db } from '../main'
 export default {
     data(){
         return{
+            rfc:localStorage.getItem("rfc"),
+            datos:[],
             card:{
                 width:"50%",
                 margin:"5em auto auto auto"
             }
         }
+    },
+    firestore(){
+            return{
+                datos:db.collection("usuarios").doc(this.rfc)
+            }
     }
 }
 </script>

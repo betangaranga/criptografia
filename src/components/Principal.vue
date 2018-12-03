@@ -38,13 +38,15 @@
   </div>
 </template>
 <script>
-
+import { functions } from 'firebase';
+import { db } from '../main'
 export default {
     data(){
 return{
     show:false,
     nombre:"",
     principal:false,
+    rfc:localStorage.getItem("rfc"),
     router:this.$router.currentRoute.fullPath,
         card:{
         width:"60%",
@@ -53,9 +55,12 @@ return{
 }
     },
      methods:{
-      salir:function(){
-          this.$router.replace("/")
-      }
+    
+       salir: function() {
+      firebase.auth().signOut().then(() => {
+        this.$router.replace('/login')
+      })
+    }
   },
   mounted(){
       if(this.$router.currentRoute.fullPath=='/principal'){
