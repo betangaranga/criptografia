@@ -2,7 +2,7 @@
     <div>
         <a11y-dialog id="app-dialog" app-root="#app" @dialog-ref="assignDialogRef">
             <div v-bind:style="modal">
-                <h1 v-bind:style="modal" slot="title">Verificación de Firma</h1>
+                <h1 v-bind:style="modal" slot="title">Notificación</h1>
                 <div>
                     <img src="../assets/checked.png" alt="SIN IMAGEN" v-show="paloma">
                     <img src="../assets/error.png" alt="SIN IMAGEN" v-show="tache">
@@ -31,6 +31,8 @@
                 <md-button v-show="paloma" v-bind:style="color" @click="generarPdf(email.id)">Descargar</md-button>
                 <md-button v-bind:style="color" v-show="email.cifrado" @click="descifrar(email.id)">Descifrar</md-button>
                 <md-button v-bind:style="color" v-show="!email.cifrado" @click="verificar(email.id)">Verificar</md-button>
+                <md-button v-bind:style="color" v-show="!email.cifrado" @click="borrar(email.id)">Borrar</md-button>
+
             </md-card-actions>
         </md-card>
 
@@ -78,6 +80,17 @@
             }
         },
         methods: {
+            borrar(id){
+            var index = this.emails.map(function (d) {
+                    return d['id'];
+                }).indexOf(id)
+                 db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
+                       
+                    this.mensaje_verificacion = "Archivo borrado con éxito"
+                        
+                    
+                    this.dialog.show()
+            },
             generarPdf(id){
             var index = this.emails.map(function (d) {
                     return d['id'];
@@ -141,11 +154,11 @@
                     this.paloma = false
                     this.mensaje_verificacion = "El archivo ha sido comprometido, se borrará de tu bandeja"
                     this.dialog.show()
-                    /*db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
+                    db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
                         .
                     then(function () {
                         console.log("Borrado")
-                    })*/
+                    })
                 }
             },
             llave: function () {
