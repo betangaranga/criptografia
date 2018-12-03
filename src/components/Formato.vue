@@ -1,5 +1,14 @@
 <template>
   <div>
+    <a11y-dialog id="app-dialog" app-root="#app" @dialog-ref="assignDialogRef">
+            <div v-bind:style="modal">
+                <h1 v-bind:style="modal" slot="title">Mensaje enviado con exito :)</h1>
+                <div>
+                    <p v-bind:style="modal">{{mensaje_verificacion}}</p>
+
+                </div>
+            </div>
+        </a11y-dialog>
     <md-card v-bind:style="card" style="border-radius=2em">
       <md-card-header>
         <div class="md-title">Envio Seguro de Formatos Oficiales</div>
@@ -64,12 +73,18 @@
           height: "100%",
           margin: "3em auto auto auto"
         },
+        modal: {
+                    color: "#5e2129",
+                    fontweight: "bold"
+                },
         cuerpoTexto: "",
         destinatario_rfc: "",
-        destinatario:"",
+        destinatario_public: "",
+        destinatario: "",
         contenido_cifrado: "",
-        llave_cifrado:"",
-        destinatarios: []
+        llave_cifrado: "",
+        destinatarios: [],
+        mensaje_verificacion:""
 
 
       }
@@ -87,8 +102,11 @@
         })
 
     },
-    
+
     methods: {
+       assignDialogRef(dialog) {
+                this.dialog = dialog
+            },
       agregarUsuario: function () {
         let llaves = RSA.KEYUTIL.generateKeypair("RSA", 512)
         db.collection("usuarios").doc("RFC2").update({
@@ -104,10 +122,9 @@
           destinatario: this.destinatario,
           cuerpo: this.cuerpoTexto,
           fecha_dia: d.getDate(),
-          fecha_mes:d.getMonth(),
+          fecha_mes: d.getMonth()+1,
           remitente: this.remitente,
-          public_key: this.public_remitente, //aqui va llave publica de quien recibe el email
-          private_key: this.private_remitente //de verdad se utiliza?
+          public_key: this.destinatario_public //aqui va llave publica de quien recibe el email
         })
         //console.log(this.email.slice(-1)[0].public_key)
 
@@ -119,10 +136,9 @@
         });
         // initialize for signature generation
         //console.log(this.email.slice(-1)[0].private_key)
-        sig.init(this.email.slice(-1)[0].private_key); // rsaPrivateKey of RSAKey object
+        sig.init(this.private_remitente); // rsaPrivateKey of RSAKey object
         // update data
         const picked = (({
-          cifrado,
           cuerpo,
           destinatario,
           fecha_dia,
@@ -131,7 +147,6 @@
           public_key,
           private_key
         }) => ({
-          cifrado,
           cuerpo,
           destinatario,
           fecha_dia,
@@ -147,19 +162,28 @@
         this.email.slice(-1)[0].firma = sigValueHex
 
       },
+      convertBytesToHex : function (bytes) {
+        // Grabbed from https://github.com/ricmoo/aes-js
+        var result = [];
+        var Hex = '0123456789abcdef';
+
+        for (var i = 0; i < bytes.length; i++) {
+          var v = bytes[i];
+          result.push(Hex[(v & 0xf0) >> 4] + Hex[v & 0x0f]);
+        }
+
+        return result.join('');
+      },
       encriptar: function () {
+        var encryptionKey = window.crypto.getRandomValues(new Uint8Array(8));
         var CryptoJS = require("crypto-js");
-        this.llave_cifrado=RSA.KJUR.crypto.Cipher.encrypt("password", RSA.KEYUTIL.getKey(this.email.slice(-1)[0].public_key))
-        //var hash_key = CryptoJS.MD5(this.email[0].public_key).toString();
-        this.contenido_cifrado = CryptoJS.AES.encrypt(JSON.stringify(this.email.slice(-1)[0]),this.llave_cifrado).toString();
-        console.log(this.contenido_cifrado)
-        var bytes = CryptoJS.AES.decrypt(this.contenido_cifrado, this.llave_cifrado);
-        var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-        console.log(decryptedData)
+        encryptionKey = CryptoJS.enc.Hex.parse(this.convertBytesToHex(encryptionKey));
+        this.llave_cifrado = RSA.KJUR.crypto.Cipher.encrypt(encryptionKey.toString(), RSA.KEYUTIL.getKey(this.email.slice(-1)[0].public_key))
+        this.contenido_cifrado = CryptoJS.AES.encrypt(JSON.stringify(this.email.slice(-1)[0]),encryptionKey.toString()).toString();
+
 
       },
       setDestinatario() {
-        console.log(this.destinatario)
         db.collection("usuarios").where("nombre", "==", this.destinatario).get().
         then(snapshot => {
           snapshot.forEach(doc => {
@@ -175,13 +199,20 @@
           this.encriptar()
           db.collection("usuarios").doc(this.destinatario_rfc).collection("emails").add({
             contenido: this.contenido_cifrado,
-            llave_cifrada:this.llave_cifrado,
-            cifrado:true
+            llave_cifrada: this.llave_cifrado,
+            cifrado: true
 
+          })
+          .then(doc=>{
+        this.mensaje_verificacion="Mensaje cifrado enviado con id : "+" "+doc.id
           })
         } else {
           db.collection("usuarios").doc(this.destinatario_rfc).collection("emails").add(this.email.slice(-1)[0])
+          .then(doc=>{
+        this.mensaje_verificacion="Mensaje enviado con id  "+" "+doc.id
+          })
         }
+        this.dialog.show()
         //this.generarPdf()
         //console.log(this.email)
 
@@ -192,7 +223,8 @@
         this.setEmail()
         this.firmarEmail()
         console.log(this.email.slice(-1)[0])
-        pdf.genPDF(d.getDate(), d.getMonth(), this.destinatario, this.remitente, this.cuerpoTexto,this.email.slice(-1)[0].firma)
+        pdf.genPDF(d.getDate(), d.getMonth()+1, this.destinatario, this.remitente, this.cuerpoTexto, this.email.slice(-
+          1)[0].firma)
       }
     },
     watch: {
@@ -200,9 +232,8 @@
         db.collection("usuarios").where("nombre", "==", this.destinatario).get().
         then(snapshot => {
           snapshot.forEach(doc => {
-            console.log(doc.data())
             this.destinatario_rfc = doc.data().rfc
-            console.log(this.destinatario_rfc)
+            this.destinatario_public = doc.data().public_key
           })
         })
 

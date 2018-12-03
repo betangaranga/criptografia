@@ -9,7 +9,6 @@
 
                 <md-card-content>
                     <h4>Nombre : {{datos.nombre}}</h4>
-                    <h4>Apellidos : {{datos.apellidos}}</h4>
                     <h4>Departamento : {{datos.departamento}}</h4>
                     <h4>Puesto : {{datos.cargo}}</h4>
                 </md-card-content>

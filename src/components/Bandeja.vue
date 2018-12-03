@@ -16,9 +16,10 @@
         <md-card v-bind:style="bandeja" v-for="email in emails">
             <md-card-header>
                 <md-card-header-text>
-                    <div class="md-title">{{email.remitente}}</div>
-                    <div class="md-subhead">{{email.fecha_dia}}/{{email.fecha_mes}}/18</div>
-                    <div class="md-subhead"> Folio :{{email.id}}</div>
+                    <div class="md-title" v-show="!email.cifrado">{{email.remitente}}</div>
+                     <div class="md-title" v-show="email.cifrado">Contenido Cifrado</div>
+                    <div class="md-subhead" v-show="!email.cifrado">{{email.fecha_dia}}/{{email.fecha_mes}}/18</div>
+                    <div class="md-subhead"> Folio {{email.id}}</div>
                 </md-card-header-text>
 
                 <md-card-media>
@@ -29,7 +30,7 @@
             <md-card-actions>
                 <md-button v-show="paloma" v-bind:style="color" @click="generarPdf(email.id)">Descargar</md-button>
                 <md-button v-bind:style="color" v-show="email.cifrado" @click="descifrar(email.id)">Descifrar</md-button>
-                <md-button v-bind:style="color" @click="verificar(email.id)">Verificar</md-button>
+                <md-button v-bind:style="color" v-show="!email.cifrado" @click="verificar(email.id)">Verificar</md-button>
             </md-card-actions>
         </md-card>
 
@@ -50,6 +51,7 @@
                 dialog: null,
                 mensaje_verificacion: "",
                 rfc: localStorage.getItem("rfc"),
+                private_key:localStorage.getItem("private_key"),
                 color: {
                     background: "#5e2129",
                     color: "white"
@@ -92,10 +94,11 @@
                  var index = this.emails.map(function (d) {
                     return d['id'];
                 }).indexOf(id)
-                console.log(index)
-                /*var bytes = CryptoJS.AES.decrypt(this.contenido_cifrado, this.llave_cifrado);
+                var key=RSA.KJUR.crypto.Cipher.decrypt(this.emails[index].llave_cifrada,  RSA.KEYUTIL.getKey(this.private_key))
+                var bytes = CryptoJS.AES.decrypt(this.emails[index].contenido, key);
                 var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                console.log(decryptedData)*/
+                decryptedData.cifrado=false
+                db.collection("usuarios").doc(this.rfc).collection("emails").doc(id).update(decryptedData)
             },
             verificar: function (id) {
                 var index = this.emails.map(function (d) {
@@ -108,7 +111,6 @@
                 sig.init(this.emails[index].public_key); // signer's certificate
                 // update data
                 const picked_t = (({
-                    cifrado,
                     cuerpo,
                     destinatario,
                     fecha_dia,
@@ -117,7 +119,6 @@
                     public_key,
                     private_key
                 }) => ({
-                    cifrado,
                     cuerpo,
                     destinatario,
                     fecha_dia,
