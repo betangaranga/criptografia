@@ -141,11 +141,11 @@
                     this.paloma = false
                     this.mensaje_verificacion = "El archivo ha sido comprometido, se borrará de tu bandeja"
                     this.dialog.show()
-                    db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
+                    /*db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
                         .
                     then(function () {
                         console.log("Borrado")
-                    })
+                    })*/
                 }
             },
             llave: function () {

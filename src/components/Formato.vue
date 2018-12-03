@@ -124,7 +124,7 @@
           fecha_dia: d.getDate(),
           fecha_mes: d.getMonth()+1,
           remitente: this.remitente,
-          public_key: this.destinatario_public //aqui va llave publica de quien recibe el email
+          public_key: this.public_remitente //aqui va llave publica de quien recibe el email
         })
         //console.log(this.email.slice(-1)[0].public_key)
 
@@ -178,7 +178,7 @@
         var encryptionKey = window.crypto.getRandomValues(new Uint8Array(8));
         var CryptoJS = require("crypto-js");
         encryptionKey = CryptoJS.enc.Hex.parse(this.convertBytesToHex(encryptionKey));
-        this.llave_cifrado = RSA.KJUR.crypto.Cipher.encrypt(encryptionKey.toString(), RSA.KEYUTIL.getKey(this.email.slice(-1)[0].public_key))
+        this.llave_cifrado = RSA.KJUR.crypto.Cipher.encrypt(encryptionKey.toString(), RSA.KEYUTIL.getKey(this.destinatario_public))
         this.contenido_cifrado = CryptoJS.AES.encrypt(JSON.stringify(this.email.slice(-1)[0]),encryptionKey.toString()).toString();
 
 

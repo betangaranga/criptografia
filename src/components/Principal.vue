@@ -38,8 +38,9 @@
   </div>
 </template>
 <script>
-import { functions } from 'firebase';
 import { db } from '../main'
+import firebase from 'firebase'
+import { functions } from 'firebase';
 export default {
     data(){
 return{
@@ -58,7 +59,7 @@ return{
     
        salir: function() {
       firebase.auth().signOut().then(() => {
-        this.$router.replace('/login')
+        this.$router.replace('/')
       })
     }
   },
