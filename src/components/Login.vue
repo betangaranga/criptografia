@@ -15,7 +15,7 @@
         <div class="title">
           <img src="../assets/ipn.png">
           <div class="md-title">UPIITA-IPN</div>
-          <div class="md-body-1">Sistema de Transferencia segura de formatos oficiales</div>
+          <div class="md-body-1">Sistema de Transferencia Segura de Formatos Oficiales</div>
         </div>
 
         <div class="form">
