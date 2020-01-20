@@ -6,7 +6,7 @@ import Formato from './components/Formato.vue'
 import Bandeja from './components/Bandeja.vue'
 import Datos from './components/Datos.vue'
 import firebase from 'firebase'
-
+import BandejaSalida from './components/BandejaSalida.vue'
 Vue.use(Router)
 
 let router=new Router({
@@ -42,6 +42,11 @@ let router=new Router({
           path:'bandeja',
           name:'bandeja',
           component:Bandeja
+        },
+        {
+          path:'bandejasalida',
+          name:'bandejasalida',
+          component:BandejaSalida
         },
         {
           path:'datos',

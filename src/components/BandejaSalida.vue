@@ -15,13 +15,11 @@
 
         <md-card v-bind:style="bandeja" v-for="email in emails">
             <md-card-header>
-                
                 <qrcode-vue :value="email.firma" :size="size" level="H"></qrcode-vue>
 
                 <md-card-header-text>
-                    <div class="md-title" v-show="!email.cifrado">{{email.remitente}}</div>
-                     <div class="md-title" v-show="email.cifrado">Contenido Cifrado</div>
-                    <div class="md-subhead" v-show="!email.cifrado">{{email.fecha_dia}}/{{email.fecha_mes}}/18</div>
+                    <div class="md-title" >{{email.remitente}}</div>
+                    <div class="md-subhead" >{{email.fecha_dia}}/{{email.fecha_mes}}/18</div>
                     <div class="md-subhead"> Folio {{email.id}}</div>
                 </md-card-header-text>
 
@@ -31,10 +29,8 @@
             </md-card-header>
 
             <md-card-actions>
-                <md-button v-show="paloma" v-bind:style="color" @click="generarPdf(email.id)">Descargar</md-button>
-                <md-button v-bind:style="color" v-show="email.cifrado" @click="descifrar(email.id)">Descifrar</md-button>
-                <md-button v-bind:style="color" v-show="!email.cifrado" @click="verificar(email.id)">Verificar</md-button>
-                <md-button v-bind:style="color" v-show="!email.cifrado" @click="borrar(email.id)">Borrar</md-button>
+                <md-button v-bind:style="color" @click="generarPdf(email.id)">Descargar</md-button>
+                <md-button v-bind:style="color" @click="borrar(email.id)">Borrar</md-button>
 
             </md-card-actions>
         </md-card>
@@ -85,15 +81,21 @@
     },
         firestore() {
             return {
-                emails: db.collection("usuarios").doc(this.rfc).collection("emails")
+                emails: db.collection("usuarios").doc(this.rfc).collection("bandejaSalida")
             }
+        },
+        created: function () {
+            this.emails.forEach(email=>{
+                this.descifrar(email.id)
+            })
+
         },
         methods: {
             borrar(id){
             var index = this.emails.map(function (d) {
                     return d['id'];
                 }).indexOf(id)
-                 db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
+                 db.collection("usuarios").doc(this.rfc).collection("bandejaSalida").doc(this.emails[index].id).delete()
                        
                     this.mensaje_verificacion = "Archivo borrado con éxito"
                         
@@ -120,7 +122,7 @@
                 var bytes = CryptoJS.AES.decrypt(this.emails[index].contenido, key);
                 var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 decryptedData.cifrado=false
-                db.collection("usuarios").doc(this.rfc).collection("emails").doc(id).update(decryptedData)
+                db.collection("usuarios").doc(this.rfc).collection("bandejaSalida").doc(id).update(decryptedData)
             },
             verificar: function (id) {
                 var index = this.emails.map(function (d) {
@@ -163,7 +165,7 @@
                     this.paloma = false
                     this.mensaje_verificacion = "El archivo ha sido comprometido, se borrará de tu bandeja"
                     this.dialog.show()
-                    db.collection("usuarios").doc(this.rfc).collection("emails").doc(this.emails[index].id).delete()
+                    db.collection("usuarios").doc(this.rfc).collection("bandejaSalida").doc(this.emails[index].id).delete()
                         .
                     then(function () {
                         console.log("Borrado")

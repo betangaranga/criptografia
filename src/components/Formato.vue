@@ -213,6 +213,10 @@
           })
         }
         this.dialog.show()
+        db.collection("usuarios").doc(this.rfc).collection("bandejaSalida").add(this.email.slice(-1)[0])
+        .then(doc=>{
+          alert(doc.id)
+        })
         //this.generarPdf()
         //console.log(this.email)
 

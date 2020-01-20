@@ -13,6 +13,10 @@
       <md-button md-raised md-primary><router-link to="/principal/bandeja">Bandeja de Entrada</router-link></md-button>
 
     </md-menu>
+    <md-menu md-direction="top-start">
+      <md-button md-raised md-primary><router-link to="/principal/bandejasalida">Bandeja de Salida</router-link></md-button>
+
+    </md-menu>
 
     <md-menu md-direction="top-end">
       <md-button md-raised md-primary @click="salir()"><a href="">Salir</a></md-button>
